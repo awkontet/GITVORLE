@@ -1,14 +1,22 @@
 #include "CAccount.h"
+#include "CTransaction.h"
+#include <ctime>
+#include <iomanip>
 #include <iostream>
-#include"CDate.h"
+using namespace std;
+#include "CDate.h"
+#include "AccountType.h"
+
 
 CAccount::CAccount(unsigned long number, AccountType type) {
-m_number= number;
-m_type=type;
-m_balance=0;
-m_maxTransactions=0;
-m_currentTransactions=0;
-m_transactions= new CTransaction[0];
+
+	m_number=number;
+	m_type=type;
+	m_balance=0;
+	m_maxTransactions=0;
+	m_transactions=new CTransaction [m_maxTransactions];
+	m_currentTransactions=0;
+
 }
 
 CAccount::~CAccount() {
@@ -24,56 +32,76 @@ float CAccount::getBalance() const {
 }
 
 void CAccount::post(CTransaction transaction) {
-	if(m_currentTransactions >= m_maxTransactions){
-		m_maxTransactions+=5;
-		CTransaction * newArray= new CTransaction[m_maxTransactions];
-		for(int i=0;i< m_currentTransactions; i++){
-			newArray[i]=m_transactions[i];
+	if (m_currentTransactions>= m_maxTransactions){
+		CTransaction* newarray= new CTransaction  [m_maxTransactions+5];
+		for(int i=0; i<m_currentTransactions ; i++){
+			newarray[i]=m_transactions[i];
 		}
 		delete [] m_transactions;
-		m_transactions=newArray;
-
+		m_transactions=newarray;
+		m_maxTransactions+=5;
 	}
-	m_transactions[m_currentTransactions++]= transaction;
-	//m_balance+=transaction;
-	int year,month,day;
+// m_transactions[m_currentTransactions] = null
+	m_transactions [m_currentTransactions]=transaction;
+	m_currentTransactions++;
+	int day,year,month;
 	float amount;
 	string comment;
 	transaction.transactionData(year,month,day,amount,comment);
 	m_balance+=amount;
 }
 
+
+// tasya
+// july 2022
+// initial balance
+// 1 makan, beli buku -$25
+// 5 beli supermarket -$50
+// 7 --> initial balance - 1 - 5 == current balance -13 -10
+// 10 jual buku +$10
+// 13 july 2022 beli baju -$30 --> siang
+// 13 july 2022 pagi balance?
+// current balance -> m_balance == $100
+// last trans 13 July 2022
+// 15 July 2022 ?
+// 12 July 2022 ?
+// day of year 1 januari ? 1 - 365
+// 30 Dec 2100 ? $100
+
+// ervin beli es krim siang -$20, duit koko sekarang $100
+// duit pagi ? $120
 float CAccount::balanceAt(int year, int month, int day) const {
-	float balance= m_balance;
-	CDate at(year,month,day);
-	for(int i= m_currentTransactions-1;i>=0;i--){
-		int tYear;
-		int tMonth;
-		int tDay;
-		float amount;
-		string comment;
-		m_transactions[i].transactionData(tYear, tMonth, tDay, amount, comment);
-		CDate tDate(year,month,day);
-		if(tYear>year|| tYear==year && tDate.dayOfYear()>= at.dayOfYear()){
-			balance-= amount;
-		} else{
-			break;
+	// ga yakin
+	int year1,day1,month1;
+	float amount1;
+	string comment1;
+	float currentbalance=m_balance;
+	CDate date(year,month,day);
+	//m_transactions[m_currentTransactions-1]
+	for(int i=0; i<m_currentTransactions; i++){
+		m_transactions[i].transactionData(year1, month1, day1, amount1, comment1);
+		CDate date1(year1,month1,day1);
+		// tahun sama => hari transaction >= hari (yang dicari)
+		// if (sesudah)
+		// if (year sesudah || (year sama dan dayOfYear sesudah))
+		if((year1>year)|| ((year1==year)&&(date1.dayOfYear()>=date.dayOfYear()))){
+			currentbalance=-amount1;
 		}
 	}
-	return balance;
+	return currentbalance;
 }
 
-
 void CAccount::print() const {
-	cout<<"Kontonummer:"<<m_number<<endl;
-	int year,month,day;
-	float amount;
-	string comment;
-	for(int i=0;i<m_currentTransactions;i++){
-		m_transactions[i].transactionData(year,month,day,amount,comment);
-		char date [20];
-		snprintf(date,sizeof(date),"%02d,%02d,%04d",day,month,year);
-		cout<<date<<": "<< amount<< "("<< comment<<")"<<endl;
+int year1,month1,date1;
+	float amount1;
+	string comment1;
+	cout<<"Kontonummer : "<<m_number<<endl;
+	if(m_currentTransactions > 0){
+		for(int i=0;i<m_currentTransactions;i++){
+			m_transactions[i].transactionData(year1,month1,date1,amount1,comment1);
+			cout<<date1<<"."<<month1<<"."<<year1<<": "<< amount1<<" ("<<comment1<<") "<<endl;
+		}
+	} else{
+		cout<<"(Keine Umsätze)"<<endl;
 	}
-
 }

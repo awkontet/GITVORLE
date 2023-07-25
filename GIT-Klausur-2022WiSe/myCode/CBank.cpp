@@ -10,10 +10,10 @@
 #include "AccountType.h"
 
 CBank::CBank() {
-//	m_customers = new CCustomer*[4];
-//	m_customers[0] = new CCustomer(1356, "Pan", "Peter");
-//	m_customers[0]->createAccount(1, Current);
-//
+	m_customers = new CCustomer*[4];
+	m_customers[0] = new CCustomer(1356, "Pan", "Peter");
+	m_customers[0]->createAccount(1, Current);
+	m_customers[0]->print();
 //	m_customers[1] = new CCustomer(5846, "Liddell", "Alice");
 //	m_customers[1]->createAccount(1, Current);
 //	m_customers[1]->accountByIndex(0)->post
